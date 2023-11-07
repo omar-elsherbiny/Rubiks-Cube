@@ -24,14 +24,14 @@ def main():
 
     Ax,Ay,Az=30, 0, 0
 
-    # pieces=[]
-    # for i in range(3):
-    #     for j in range(3):
-    #         for k in range(3):
-    #             if i==1 and j==1 and k==1: continue
-    #             pieces.append(Piece(Matrix('3x1',[[cube_scale*(i-1)],[cube_scale*(j-1)],[cube_scale*(k-1)]]),['w','r','b','o','g','y']))
+    pieces=[]
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                if i==1 and j==1 and k==1: continue
+                pieces.append(Piece(Matrix('3x1',[[cube_scale*(i-1)],[cube_scale*(j-1)],[cube_scale*(k-1)]]),['w','g','r','b','o','y']))
 
-    pieces=[Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),['w','r','b',0,0,0])]
+    #pieces=[Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),['w','g','r','b','o','y'])]
 
     #MAIN LOOP
     run = True
@@ -51,11 +51,12 @@ def main():
         rot=rotX@rotY@rotZ
 
         SCREEN.fill(BG_COLOR)
-        
-        for piece in sorted(pieces,key=lambda x:x.center[2]):
-            piece.draw_piece(SCREEN,(0,100,100),rot)
 
         Basis.draw_basis(Basis,screen=SCREEN,matrix=rot,scale=150)
+        
+        for piece in sorted(pieces,key=lambda x:(rot@x.center).matrix[2][0]):
+            piece.draw_piece(SCREEN,(0,100,200),rot)
+
 
         clock.tick(60)
         pyg.display.set_caption(f'Rendering--{int(clock.get_fps())}')
