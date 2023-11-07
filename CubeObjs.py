@@ -75,7 +75,7 @@ class Piece:
             rp.append((int(p.matrix[0][0]+250),int(-p.matrix[1][0]+250)))
         r=self.get_side_order(matrix)
         for s in r:
-            if s['c'] != 0:
+            if s['c'] != '0':
                 d=dist_3d_mp(s['s'],light_center)
                 c=get_color(d,side_colors[s['c']])
                 draw.polygon(screen,c,[rp[i] for i in sides_pnt_index[s['id']]])  

@@ -30,32 +30,32 @@ def main():
     operation_progress=0
 
     pieces=[
-        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),'wgrnnn'),
-        Piece(Matrix('3x1',[[0],[cube_scale],[cube_scale]]),'wgnnnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[cube_scale]]),'wgnnon'),
-        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[0]]),'wnrnnn'),
-        Piece(Matrix('3x1',[[0],[cube_scale],[0]]),'wnnnnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[0]]),'wnnnon'),
-        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[-cube_scale]]),'wnrbnn'),
-        Piece(Matrix('3x1',[[0],[cube_scale],[-cube_scale]]),'wnnbnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[-cube_scale]]),'wnnbon'),
-        Piece(Matrix('3x1',[[cube_scale],[0],[cube_scale]]),'ngrnnn'),
-        Piece(Matrix('3x1',[[0],[0],[cube_scale]]),'ngnnnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[0],[cube_scale]]),'ngnnon'),
-        Piece(Matrix('3x1',[[cube_scale],[0],[0]]),'nnrnnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[0],[0]]),'nnnnon'),
-        Piece(Matrix('3x1',[[cube_scale],[0],[-cube_scale]]),'nnrbnn'),
-        Piece(Matrix('3x1',[[0],[0],[-cube_scale]]),'nnnbnn'),
-        Piece(Matrix('3x1',[[-cube_scale],[0],[-cube_scale]]),'nnnbon'),
-        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[cube_scale]]),'ngrnny'),
-        Piece(Matrix('3x1',[[0],[-cube_scale],[cube_scale]]),'ngnnny'),
-        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[cube_scale]]),'ngnnoy'),
-        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[0]]),'nnrnny'),
-        Piece(Matrix('3x1',[[0],[-cube_scale],[0]]),'nnnnny'),
-        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[0]]),'nnnnoy'),
-        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[-cube_scale]]),'nnrbny'),
-        Piece(Matrix('3x1',[[0],[-cube_scale],[-cube_scale]]),'nnnbny'),
-        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[-cube_scale]]),'nnnboy')
+        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),'wgr000'),
+        Piece(Matrix('3x1',[[0],[cube_scale],[cube_scale]]),'wg0000'),
+        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[cube_scale]]),'wg00o0'),
+        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[0]]),'w0r000'),
+        Piece(Matrix('3x1',[[0],[cube_scale],[0]]),'w00000'),
+        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[0]]),'w000o0'),
+        Piece(Matrix('3x1',[[cube_scale],[cube_scale],[-cube_scale]]),'w0rb00'),
+        Piece(Matrix('3x1',[[0],[cube_scale],[-cube_scale]]),'w00b00'),
+        Piece(Matrix('3x1',[[-cube_scale],[cube_scale],[-cube_scale]]),'w00bo0'),
+        Piece(Matrix('3x1',[[cube_scale],[0],[cube_scale]]),'0gr000'),
+        Piece(Matrix('3x1',[[0],[0],[cube_scale]]),'0g0000'),
+        Piece(Matrix('3x1',[[-cube_scale],[0],[cube_scale]]),'0g00o0'),
+        Piece(Matrix('3x1',[[cube_scale],[0],[0]]),'00r000'),
+        Piece(Matrix('3x1',[[-cube_scale],[0],[0]]),'0000o0'),
+        Piece(Matrix('3x1',[[cube_scale],[0],[-cube_scale]]),'00rb00'),
+        Piece(Matrix('3x1',[[0],[0],[-cube_scale]]),'000b00'),
+        Piece(Matrix('3x1',[[-cube_scale],[0],[-cube_scale]]),'000bo0'),
+        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[cube_scale]]),'0gr00y'),
+        Piece(Matrix('3x1',[[0],[-cube_scale],[cube_scale]]),'0g000y'),
+        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[cube_scale]]),'0g00oy'),
+        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[0]]),'00r00y'),
+        Piece(Matrix('3x1',[[0],[-cube_scale],[0]]),'00000y'),
+        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[0]]),'0000oy'),
+        Piece(Matrix('3x1',[[cube_scale],[-cube_scale],[-cube_scale]]),'00rb0y'),
+        Piece(Matrix('3x1',[[0],[-cube_scale],[-cube_scale]]),'000b0y'),
+        Piece(Matrix('3x1',[[-cube_scale],[-cube_scale],[-cube_scale]]),'000boy')
     ]
 
     def sort_pieces():
@@ -88,8 +88,8 @@ def main():
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],-90*ops[current_operation[0]]['s']*operation_progress/100)
                     else:
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],90*ops[current_operation[0]]['s']*operation_progress/100)
-            operation_progress+=2
-        if operation_progress == 100:
+            operation_progress+=3
+        if operation_progress >= 100:
             for i in range(26):
                 if current_operation[0] in grps[i]:
                     pieces[i].add=identity3
@@ -108,6 +108,8 @@ def main():
 
         SCREEN.fill(BG_COLOR)
         
+        #pyg.draw.polygon(SCREEN,(10,10,10),[(196,22),(49,100),(49,408),(302,477),(450,353),(450,95)])
+
         for piece in sorted(pieces,key=lambda x:(x.get_personal_matrix(rot)@x.center).matrix[2][0]):
             piece.draw_piece(SCREEN,(0,100,200),piece.get_personal_matrix(rot))
 
