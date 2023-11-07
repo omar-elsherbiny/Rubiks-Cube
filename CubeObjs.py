@@ -22,12 +22,12 @@ def dist_3d_mp(pntm,pntp):
     return sqrt((pntm.matrix[0][0]-pntp[0])**2+(pntm.matrix[1][0]-pntp[1])**2+(pntm.matrix[2][0]-pntp[2])**2)
 
 def get_color(dist,color):
-    #c=71000/(dist+279)
     l=100/(dist+50)
     return (min(255,l*color[0]),min(255,l*color[1]),min(255,l*color[2]))
 
 class Piece:
-    def __init__(self,center,side_colors):
+    def __init__(self,center,side_colors,groups):
+        self.grps=groups
         self.center=center
         self.points=[]
         for v in verticies_relative_coords:
@@ -48,6 +48,7 @@ class Piece:
             res.append(r)
         res.sort(key=lambda x: x['s'].matrix[2][0])
         return res[3:]
+        ## return res
         
     def draw_piece(self,screen,light_center,matrix):
         rp=[]
@@ -59,10 +60,10 @@ class Piece:
             if s['c'] != 0:
                 d=dist_3d_mp(s['s'],light_center)
                 c=get_color(d,side_colors[s['c']])
-                draw.polygon(screen,c,[rp[i] for i in sides_pnt_index[s['id']]])       
+                draw.polygon(screen,c,[rp[i] for i in sides_pnt_index[s['id']]])  
 
 if __name__=='__main__':
-    print(config['x'])
+    pass
 
 #   order
 #top
