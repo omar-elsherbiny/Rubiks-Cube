@@ -22,7 +22,7 @@ def draw_text(text,x,y,c):
 def main():
     clock = pyg.time.Clock()
 
-    Ax,Ay,Az=30, 0, 0
+    Ax,Ay,Az=config['init_angles']
 
     pieces=[]
     for i in range(3):

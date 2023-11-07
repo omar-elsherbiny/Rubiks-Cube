@@ -1,39 +1,18 @@
+import json
 from math import sqrt
 from MatrixObj import Matrix
 from pygame import draw
 
-side_colors={'w':(220, 220, 220),
-             'g':(110, 235, 90),
-             'r':(255, 40, 40),
-             'b':(100, 185, 225),
-             'o':(255, 165, 25),
-             'y':(255, 240, 60)}
+f=open('config.json','r')
+config=json.load(f)
+f.close()
 
-sides_pnt_index = [[4,0,1,5],
-                   [0,2,6,4],
-                   [0,1,3,2],
-                   [5,1,3,7],
-                   [4,5,7,6],
-                   [2,3,7,6]]
-
-sides_relative_coords=[[0,1,0],
-                       [0,0,1],
-                       [1,0,0],
-                       [0,0,-1],
-                       [-1,0,0],
-                       [0,-1,0]]
-
-verticies_relative_coords=[[1,1,1],
-                           [1,1,-1],
-                           [1,-1,1],
-                           [1,-1,-1],
-                           [-1,1,1],
-                           [-1,1,-1],
-                           [-1,-1,1],
-                           [-1,-1,-1]]
-
-cube_scale=100
-piece_scale=30
+cube_scale=config['cube_scale']
+piece_scale=config['piece_scale']
+side_colors = config['side_colors']
+sides_pnt_index = config['sides_pnt_index']
+sides_relative_coords = config['sides_relative_coords']
+verticies_relative_coords=config['verticies_relative_coords']
 
 def dist_3d_m(pnt1,pnt2):
     return sqrt((pnt1.matrix[0][0]-pnt2.matrix[0][0])**2+(pnt1.matrix[1][0]-pnt2.matrix[1][0])**2+(pnt1.matrix[2][0]-pnt2.matrix[2][0])**2)
@@ -83,7 +62,7 @@ class Piece:
                 draw.polygon(screen,c,[rp[i] for i in sides_pnt_index[s['id']]])       
 
 if __name__=='__main__':
-    p=Piece((0,0,0),0)
+    print(config['x'])
 
 #   order
 #top
