@@ -1,5 +1,5 @@
 import json
-from math import sqrt
+from math import sin, cos, radians, sqrt
 from MatrixObj import Matrix
 from pygame import draw
 
@@ -26,8 +26,8 @@ def get_color(dist,color):
     return (min(255,l*color[0]),min(255,l*color[1]),min(255,l*color[2]))
 
 class Piece:
-    def __init__(self,center,side_colors,groups):
-        self.grps=groups
+    def __init__(self,center,side_colors):
+        self.angs=[0,0,0]
         self.center=center
         self.points=[]
         for v in verticies_relative_coords:
@@ -39,6 +39,12 @@ class Piece:
                 's':Matrix('3x1',[[center.matrix[0][0]+piece_scale*(s[0])],[center.matrix[1][0]+piece_scale*(s[1])],[center.matrix[2][0]+piece_scale*(s[2])]]),
                 'c':side_colors[i]
             })
+
+    def get_personal_matrix(self,add=[0,0,0]):
+        rotX=Matrix('3x3',[[1,0,0],[0,cos(radians(self.angs[0]+add[0])),-sin(radians(self.angs[0]+add[0]))],[0,sin(radians(self.angs[0]+add[0])),cos(radians(self.angs[0]+add[0]))]])
+        rotY=Matrix('3x3',[[cos(radians(self.angs[1]+add[1])),0,-sin(radians(self.angs[1]+add[1]))],[0,1,0],[sin(radians(self.angs[1]+add[1])),0,cos(radians(self.angs[1]+add[1]))]])
+        rotZ=Matrix('3x3',[[cos(radians(self.angs[2]+add[2])),-sin(radians(self.angs[2]+add[2])),0],[sin(radians(self.angs[2]+add[2])),cos(radians(self.angs[2]+add[2])),0],[0,0,1]])
+        return rotX@rotY@rotZ
 
     def get_side_order(self,matrix):
         res=[]

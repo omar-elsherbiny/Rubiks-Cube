@@ -1,5 +1,5 @@
 {
-    "init_angles": [30,30,0],
+    "init_angles": [30,0,0],
     "cube_scale": 100,
     "piece_scale": 40,
     "side_colors": {
@@ -37,5 +37,21 @@
         [-1,1,-1],
         [-1,-1,1],
         [-1,-1,-1]
-    ]
+    ],
+    "groups": [
+        "urf","umf","ulf","urs","ums","uls","urb","umb","ulb",
+        "erf","emf","elf","ers",      "els","erb","emb","elb",
+        "drf","dmf","dlf","drs","dms","dls","drb","dmb","dlb"
+    ],
+    "operations": {
+        "u": {"ax":1, "s":1},
+        "d": {"ax":1, "s":-1},
+        "r": {"ax":0, "s":1},
+        "l": {"ax":0, "s":-1},
+        "f": {"ax":2, "s":1},
+        "b": {"ax":2, "s":-1},
+        "m": {"ax":0, "s":1},
+        "e": {"ax":1, "s":1},
+        "s": {"ax":2, "s":1}
+    }
 }
