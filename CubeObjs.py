@@ -1,6 +1,6 @@
 import json
 from math import sin, cos, radians, sqrt
-from MatrixObj import Matrix
+from MatrixObj import Matrix, identity3
 from pygame import draw
 
 f=open('config.json','r')
@@ -27,7 +27,8 @@ def get_color(dist,color):
 
 class Piece:
     def __init__(self,center,side_colors):
-        self.angs=[0,0,0]
+        self.add=identity3
+        self.steps=[]
         self.center=center
         self.points=[]
         for v in verticies_relative_coords:
@@ -40,11 +41,22 @@ class Piece:
                 'c':side_colors[i]
             })
 
-    def get_personal_matrix(self,add=[0,0,0]):
-        rotX=Matrix('3x3',[[1,0,0],[0,cos(radians(self.angs[0]+add[0])),-sin(radians(self.angs[0]+add[0]))],[0,sin(radians(self.angs[0]+add[0])),cos(radians(self.angs[0]+add[0]))]])
-        rotY=Matrix('3x3',[[cos(radians(self.angs[1]+add[1])),0,-sin(radians(self.angs[1]+add[1]))],[0,1,0],[sin(radians(self.angs[1]+add[1])),0,cos(radians(self.angs[1]+add[1]))]])
-        rotZ=Matrix('3x3',[[cos(radians(self.angs[2]+add[2])),-sin(radians(self.angs[2]+add[2])),0],[sin(radians(self.angs[2]+add[2])),cos(radians(self.angs[2]+add[2])),0],[0,0,1]])
-        return rotX@rotY@rotZ
+    def get_step(self,axis,angle):
+        if axis == 0:
+            return Matrix('3x3',[[1,0,0],[0,cos(radians(angle)),-sin(radians(angle))],[0,sin(radians(angle)),cos(radians(angle))]])
+        elif axis == 1:
+            return Matrix('3x3',[[cos(radians(angle)),0,-sin(radians(angle))],[0,1,0],[sin(radians(angle)),0,cos(radians(angle))]])
+        elif axis == 2:
+            return Matrix('3x3',[[cos(radians(angle)),-sin(radians(angle)),0],[sin(radians(angle)),cos(radians(angle)),0],[0,0,1]])
+
+
+    def get_personal_matrix(self,base=None):
+        res=self.add
+        if base != None:
+            res = base@self.add
+        for i in range(len(self.steps)):
+            res @= self.steps[len(self.steps)-i-1]
+        return res
 
     def get_side_order(self,matrix):
         res=[]

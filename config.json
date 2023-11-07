@@ -1,7 +1,7 @@
 {
-    "init_angles": [30,0,0],
+    "init_angles": [30,30,0],
     "cube_scale": 100,
-    "piece_scale": 40,
+    "piece_scale": 47,
     "side_colors": {
         "w": [220,220,220],
         "g": [110,235,90],
