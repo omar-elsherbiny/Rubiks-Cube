@@ -162,10 +162,10 @@ class Matrix:
 class Basis:
     vects=[Matrix('3x1', [[1],[0],[0]]),Matrix('3x1', [[0],[1],[0]]),Matrix('3x1', [[0],[0],[1]])]
 
-    def draw_basis(self,screen,matrix,scale):
-        draw.line(screen,(255, 10, 50),(250,250),((matrix@self.vects[0]*scale).matrix[0][0]+250,-(matrix@self.vects[0]*scale).matrix[1][0]+250),3)
-        draw.line(screen,(50, 255, 10),(250,250),((matrix@self.vects[1]*scale).matrix[0][0]+250,-(matrix@self.vects[1]*scale).matrix[1][0]+250),3)
-        draw.line(screen,(10, 50, 255),(250,250),((matrix@self.vects[2]*scale).matrix[0][0]+250,-(matrix@self.vects[2]*scale).matrix[1][0]+250),3)
+    def draw_basis(self,screen,matrix,scale,x,y):
+        draw.line(screen,(255, 10, 50),(x,y),((matrix@self.vects[0]*scale).matrix[0][0]+x,-(matrix@self.vects[0]*scale).matrix[1][0]+y),3)
+        draw.line(screen,(50, 255, 10),(x,y),((matrix@self.vects[1]*scale).matrix[0][0]+x,-(matrix@self.vects[1]*scale).matrix[1][0]+y),3)
+        draw.line(screen,(10, 50, 255),(x,y),((matrix@self.vects[2]*scale).matrix[0][0]+x,-(matrix@self.vects[2]*scale).matrix[1][0]+y),3)
 
 identity3=Matrix('3x3',[[1,0,0],[0,1,0],[0,0,1]])
 

@@ -22,7 +22,8 @@ def dist_3d_mp(pntm,pntp):
     return sqrt((pntm.matrix[0][0]-pntp[0])**2+(pntm.matrix[1][0]-pntp[1])**2+(pntm.matrix[2][0]-pntp[2])**2)
 
 def get_color(dist,color):
-    l=100/(dist+50)
+    #l=100/(dist+50)
+    l=200/(dist+100)
     return (min(255,l*color[0]),min(255,l*color[1]),min(255,l*color[2]))
 
 class Piece:

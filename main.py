@@ -28,6 +28,10 @@ def main():
     ops=config['operations']
     current_operation=0
     operation_progress=0
+    dragging=False
+    coords=(0,0)
+    prev_coords=(0,0)
+    drag_vector=(0,0)
 
     pieces=[
         Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),'wgr000'),
@@ -72,6 +76,7 @@ def main():
     #MAIN LOOP
     run = True
     while run:
+        coords=pyg.mouse.get_pos()
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
                 pyg.quit()
@@ -80,6 +85,19 @@ def main():
                 if event.button == 1:
                     if current_operation == 0:
                         current_operation=[choice(list(ops.keys())),choice([0,1])]
+                if event.button == 3:
+                    dragging=True
+                    prev_coords=event.pos
+            elif event.type == pyg.MOUSEBUTTONUP:
+                if event.button == 3:
+                    dragging=False
+                    Ax+=drag_vector[1]
+                    Ay-=drag_vector[0]
+
+        if dragging:
+            drag_vector=(max(-360,min(360,(coords[0]-prev_coords[0])/2)),max(-360,min(360,(coords[1]-prev_coords[1])/2)))
+        else:
+            drag_vector=(0,0)
 
         if current_operation != 0:
             for i in range(26):
@@ -88,7 +106,7 @@ def main():
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],-90*ops[current_operation[0]]['s']*operation_progress/100)
                     else:
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],90*ops[current_operation[0]]['s']*operation_progress/100)
-            operation_progress+=3
+            operation_progress+=4
         if operation_progress >= 100:
             for i in range(26):
                 if current_operation[0] in grps[i]:
@@ -101,8 +119,8 @@ def main():
             operation_progress=0
             current_operation=0
 
-        rotX=Matrix('3x3',[[1,0,0],[0,cos(radians(Ax)),-sin(radians(Ax))],[0,sin(radians(Ax)),cos(radians(Ax))]])
-        rotY=Matrix('3x3',[[cos(radians(Ay)),0,-sin(radians(Ay))],[0,1,0],[sin(radians(Ay)),0,cos(radians(Ay))]])
+        rotX=Matrix('3x3',[[1,0,0],[0,cos(radians(Ax+drag_vector[1])),-sin(radians(Ax+drag_vector[1]))],[0,sin(radians(Ax+drag_vector[1])),cos(radians(Ax+drag_vector[1]))]])
+        rotY=Matrix('3x3',[[cos(radians(Ay-drag_vector[0])),0,-sin(radians(Ay-drag_vector[0]))],[0,1,0],[sin(radians(Ay-drag_vector[0])),0,cos(radians(Ay-drag_vector[0]))]])
         rotZ=Matrix('3x3',[[cos(radians(Az)),-sin(radians(Az)),0],[sin(radians(Az)),cos(radians(Az)),0],[0,0,1]])
         rot=rotX@rotY@rotZ
 
@@ -113,7 +131,8 @@ def main():
         for piece in sorted(pieces,key=lambda x:(x.get_personal_matrix(rot)@x.center).matrix[2][0]):
             piece.draw_piece(SCREEN,(0,100,200),piece.get_personal_matrix(rot))
 
-        #Basis.draw_basis(Basis,screen=SCREEN,matrix=rot,scale=150)
+        Basis.draw_basis(Basis,SCREEN,rot,30,450,450)
+        pyg.draw.circle(SCREEN,(220,220,220),(450,450),35,2)
 
         clock.tick(60)
         pyg.display.set_caption(f'Rendering--{int(clock.get_fps())}')
