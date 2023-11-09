@@ -20,6 +20,8 @@ def dist_3d_p(pnt1,pnt2):
     return sqrt((pnt1[0]-pnt2[0])**2+(pnt1[1]-pnt2[1])**2+(pnt1[2]-pnt2[2])**2)
 def dist_3d_mp(pntm,pntp):
     return sqrt((pntm.matrix[0][0]-pntp[0])**2+(pntm.matrix[1][0]-pntp[1])**2+(pntm.matrix[2][0]-pntp[2])**2)
+def dist_2d_mp(pntm,pntp):
+    return sqrt((pntm.matrix[0][0]-pntp[0])**2+(pntm.matrix[1][0]-pntp[1])**2)
 
 def get_color(dist,color):
     #l=100/(dist+50)
@@ -28,9 +30,10 @@ def get_color(dist,color):
 
 class Piece:
     def __init__(self,center,side_colors):
+        self.center=center
+        self.colors=side_colors
         self.add=identity3
         self.steps=[]
-        self.center=center
         self.points=[]
         for v in verticies_relative_coords:
             self.points.append(Matrix('3x1',[[center.matrix[0][0]+piece_scale*(v[0])],[center.matrix[1][0]+piece_scale*(v[1])],[center.matrix[2][0]+piece_scale*(v[2])]]))
@@ -41,6 +44,11 @@ class Piece:
                 's':Matrix('3x1',[[center.matrix[0][0]+piece_scale*(s[0])],[center.matrix[1][0]+piece_scale*(s[1])],[center.matrix[2][0]+piece_scale*(s[2])]]),
                 'c':side_colors[i]
             })
+
+    def set_side_colors(self,new_colors):
+        self.colors=new_colors
+        for i in range(6):
+            self.sides[i]['c']=new_colors[i]
 
     def get_step(self,axis,angle):
         if axis == 0:
@@ -91,3 +99,7 @@ if __name__=='__main__':
 #behind
 #left
 #bottom
+
+# ops
+#eg: urf
+#    yxz

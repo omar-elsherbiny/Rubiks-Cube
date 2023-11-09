@@ -19,6 +19,16 @@ def draw_text(text,x,y,c):
     txt=FONT.render(text,True,c)
     SCREEN.blit(txt,(x,y))
 
+def get_sign(a,b):
+    if a<0 and b>=0:
+        return 1
+    elif a>=0 and b>=0:
+        return -1
+    elif a<0 and b<0:
+        return -1
+    elif a>=0 and b<0:
+        return 1
+
 #Main
 def main():
     clock = pyg.time.Clock()
@@ -28,10 +38,13 @@ def main():
     ops=config['operations']
     current_operation=0
     operation_progress=0
-    dragging=False
+    panning=False
     coords=(0,0)
     prev_coords=(0,0)
     drag_vector=(0,0)
+    dragging=False
+    f_selec=False
+    f_selec_c=''
 
     pieces=[
         Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),'wgr000'),
@@ -73,6 +86,23 @@ def main():
         for i in range(4):
             pieces[i*3+14:i*3+17]=sorted(pieces[i*3+14:i*3+17],key=lambda x:(x.get_personal_matrix()@x.center).matrix[0][0],reverse=True)
 
+    def get_closest_piece(crds):
+        dists=[dist_3d_mp(piece.get_personal_matrix(rot)@piece.center, (crds[0]-250,-crds[1]+250,max(0,(piece.get_personal_matrix(rot)@piece.center)[2][0]))) for piece in pieces]
+        return dists.index(min(dists))
+
+    def get_operation(f,l):
+        opl=[[grps[f][i],i] for i in range(3) if grps[f][i]==grps[l][i]]
+        if len(opl)==0: return 0
+        operation=opl[0][0]
+        if opl[0][1]==0:
+            rev=get_sign((pieces[l].center.matrix[0][0]-pieces[f].center.matrix[0][0]),(pieces[l].center.matrix[2][0]+pieces[f].center.matrix[2][0]))
+        elif opl[0][1]==1:
+            rev=get_sign((pieces[l].center.matrix[1][0]-pieces[f].center.matrix[1][0]),(pieces[l].center.matrix[2][0]+pieces[f].center.matrix[2][0]))
+        elif opl[0][1]==2:
+            rev=get_sign((pieces[l].center.matrix[0][0]-pieces[f].center.matrix[0][0]),(pieces[l].center.matrix[1][0]+pieces[f].center.matrix[1][0]))
+        print([operation,rev])
+        return [operation,abs(rev-1)]
+
     #MAIN LOOP
     run = True
     while run:
@@ -83,19 +113,36 @@ def main():
                 syexit()
             elif event.type == pyg.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if current_operation == 0:
-                        current_operation=[choice(list(ops.keys())),choice([0,1])]
-                if event.button == 3:
                     dragging=True
-                    prev_coords=event.pos
-            elif event.type == pyg.MOUSEBUTTONUP:
+                    f_selec=get_closest_piece(event.pos)
+                    f_selec_c=pieces[f_selec].colors
+                    pieces[f_selec].set_side_colors('rrrrrr')
                 if event.button == 3:
-                    dragging=False
+                    panning=True
+                    prev_coords=event.pos
+                if event.button == 2 and current_operation == 0: current_operation=[choice(list(ops.keys())),choice([0,1])]
+            elif event.type == pyg.MOUSEBUTTONUP:
+                if event.button == 1:
+                    if current_operation == 0:
+                        dragging=False
+                        pieces[f_selec].set_side_colors(f_selec_c)
+                        l_selec=get_closest_piece(event.pos)
+                        current_operation=get_operation(f_selec,l_selec)
+
+                if event.button == 3:
+                    panning=False
                     Ax+=drag_vector[1]
                     Ay-=drag_vector[0]
 
         if dragging:
-            drag_vector=(max(-360,min(360,(coords[0]-prev_coords[0])/2)),max(-360,min(360,(coords[1]-prev_coords[1])/2)))
+            tmp_i=get_closest_piece(coords)
+            tmp_c=pieces[tmp_i].colors
+            pieces[tmp_i].set_side_colors('bbbbbb')
+            
+        if panning:
+            drag_vector=[max(-360,min(360,(coords[0]-prev_coords[0])/2)),max(-360,min(360,(coords[1]-prev_coords[1])/2))]
+            Ax=Ax%360
+            if Ax>90 and Ax<270: drag_vector[0]*=-1
         else:
             drag_vector=(0,0)
 
@@ -133,6 +180,9 @@ def main():
 
         Basis.draw_basis(Basis,SCREEN,rot,30,450,450)
         pyg.draw.circle(SCREEN,(220,220,220),(450,450),35,2)
+
+        if dragging:
+            pieces[tmp_i].set_side_colors(tmp_c)
 
         clock.tick(60)
         pyg.display.set_caption(f'Rendering--{int(clock.get_fps())}')
