@@ -167,7 +167,7 @@ class Basis:
         draw.line(screen,(50, 255, 10),(x,y),((matrix@self.vects[1]*scale).matrix[0][0]+x,-(matrix@self.vects[1]*scale).matrix[1][0]+y),3)
         draw.line(screen,(10, 50, 255),(x,y),((matrix@self.vects[2]*scale).matrix[0][0]+x,-(matrix@self.vects[2]*scale).matrix[1][0]+y),3)
 
-identity3=Matrix('3x3',[[1,0,0],[0,1,0],[0,0,1]])
+identity3=Matrix('3x3',[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]])
 
 if __name__=='__main__':
     pass

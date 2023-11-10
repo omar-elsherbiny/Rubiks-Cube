@@ -2,8 +2,19 @@ import json
 from math import sin, cos, radians, sqrt
 from MatrixObj import Matrix, identity3
 import pygame as pyg
+import sys
+import os
 
-f=open('config.json','r')
+def resource_path(relative_path):
+    try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+f=open(resource_path('config.json'),'r')
 config=json.load(f)
 f.close()
 
@@ -14,10 +25,6 @@ sides_pnt_index = config['sides_pnt_index']
 sides_relative_coords = config['sides_relative_coords']
 verticies_relative_coords=config['verticies_relative_coords']
 
-# def dist_3d_m(pnt1,pnt2):
-#     return sqrt((pnt1.matrix[0][0]-pnt2.matrix[0][0])**2+(pnt1.matrix[1][0]-pnt2.matrix[1][0])**2+(pnt1.matrix[2][0]-pnt2.matrix[2][0])**2)
-# def dist_3d_p(pnt1,pnt2):
-#     return sqrt((pnt1[0]-pnt2[0])**2+(pnt1[1]-pnt2[1])**2+(pnt1[2]-pnt2[2])**2)
 def dist_3d_mp(pntm,pntp):
     return sqrt((pntm.matrix[0][0]-pntp[0])**2+(pntm.matrix[1][0]-pntp[1])**2+(pntm.matrix[2][0]-pntp[2])**2)
 def dist_2d_mp(pntm,pntp):
@@ -26,10 +33,6 @@ def dist_2d_mp(pntm,pntp):
 def get_color(dist,color):
     l=200/(dist+100)
     return (min(255,l*color[0]),min(255,l*color[1]),min(255,l*color[2]))
-
-def draw_text(screen,font,text,pos,c):
-    txt=font.render(text,True,c)
-    screen.blit(txt,pos)
 
 class Piece:
     def __init__(self,center,side_colors):
@@ -92,50 +95,8 @@ class Piece:
                 c=get_color(d,side_colors[s['c']])
                 pyg.draw.polygon(screen,c,[rp[i] for i in sides_pnt_index[s['id']]])  
 
-class BtnContainer:
-    def __init__(self, pos, scale):
-        self.s=scale
-        self.show=[]
-        self.pos=pos
-        self.images={}
-        self.rects={}
-        for o in 'udrlfbmseT':
-            i=pyg.image.load(f"assets/{o}.png").convert_alpha()
-            self.images[o]=pyg.transform.scale(i,(int(i.get_width()*scale),int(i.get_height()*scale)))
-            self.rects[o]=self.images[o].get_rect()
-        self.bracket_imgs=[pyg.transform.scale(pyg.image.load('assets/l_bracket.png').convert_alpha(),(int(5*scale),int(32*scale))),
-                           pyg.transform.scale(pyg.image.load('assets/r_bracket.png').convert_alpha(),(int(5*scale),int(32*scale)))]
-        
-    def get_clicked(self,coords,Ar):
-        for b in self.show:
-            tb=b[0]
-            if b[1]: tb={'u':'d','d':'u','r':'l','l':'r','f':'b','b':'f','m':'s','s':'m','e':'T'}[b[0]]
-            if self.rects[tb].collidepoint(coords):
-                if pyg.mouse.get_pressed()[0]==1:
-                    if Ar>90 and Ar<270:
-                        return [b[0],not b[1]]
-                    return b
-        return 0
-
-    def draw(self,screen,font,Ar):
-        screen.blit(self.bracket_imgs[0],self.pos)
-        sum_x=self.pos[0]+int(5*self.s)
-        for b in self.show:
-            tb=b[0]
-            if b[1]: tb={'u':'d','d':'u','r':'l','l':'r','f':'b','b':'f','m':'s','s':'m','e':'T'}[b[0]]
-            if Ar>90 and Ar<270: tb={'u':'d','d':'u','r':'l','l':'r','f':'b','b':'f','m':'s','s':'m','e':'T'}[tb[0]]
-            self.rects[tb].topleft=(sum_x,self.pos[1])
-            screen.blit(self.images[tb],self.rects[tb].topleft)
-            ttb=b[0]
-            if Ar>90 and Ar<270: ttb={'u':'d','d':'u','r':'l','l':'r','f':'b','b':'f','m':'s','s':'m','e':'T'}[b[0]]
-            ttb+='`' if b[1] else ''
-            draw_text(screen,font,ttb,self.rects[tb].midbottom,(150, 255, 190))
-            sum_x+=self.rects[tb].w+10
-        screen.blit(self.bracket_imgs[1],(sum_x,self.pos[1]))
-
 if __name__=='__main__':
-   b=BtnContainer((0,0),500,32)
-   print(b.images)
+   pass
 
 #   order
 #top

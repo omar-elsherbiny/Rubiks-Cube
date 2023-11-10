@@ -10,10 +10,11 @@ pyg.init()
 
 #Globals
 SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 500
 BG_COLOR=(20,20,20)
 SCREEN = pyg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-FONT = pyg.font.Font("freesansbold.ttf", 20)
+FONT = pyg.font.Font(resource_path("Comfortaa-Bold.ttf"), 20)
+FONT2 = pyg.font.Font(resource_path("Comfortaa-Bold.ttf"), 13)
 
 #Main
 def main():
@@ -31,8 +32,9 @@ def main():
     dragging=False
     f_selec=False
     f_selec_c=''
-
-    btns=BtnContainer((20,490),2.5)
+    is_acw=True
+    cw_outline=pyg.Rect(15,450,57,30)
+    correct=False
 
     pieces=[
         Piece(Matrix('3x1',[[cube_scale],[cube_scale],[cube_scale]]),'wgr000'),
@@ -78,14 +80,12 @@ def main():
         dists=[dist_3d_mp(piece.get_personal_matrix(rot)@piece.center, (crds[0]-250,-crds[1]+250,max(0,(piece.get_personal_matrix(rot)@piece.center)[2][0]))) for piece in pieces]
         return dists.index(min(dists))
 
-    def add_operations(f,l):
+    def get_operation(f,l):
         opl=[grps[f][i] for i in range(3) if grps[f][i]==grps[l][i]]
-        btns.show=[]
-        for o in opl:
-            btns.show.append([o,0])
-            btns.show.append([o,1])
+        if len(opl)==0: return 0
+        return [opl[0],not is_acw if opl[0]=='u' or opl[0]=='d' else is_acw]
 
-    n_rando=randint(15,30)
+    n_rando=randint(15,32)
     rando=[[choice(list(ops.keys())[:6]),choice([0,1])] for i in range(n_rando)]
     for r in rando:
         for i in range(26):
@@ -95,7 +95,10 @@ def main():
                 else:
                     pieces[i].steps.append(pieces[i].get_step(ops[r[0]]['ax'],90*ops[r[0]]['s']))
         sort_pieces()
+    shuffle_str=' '.join([o[0].upper()+'`' if o[1] else o[0].upper() for o in rando])
 
+    txt_renders=[FONT2.render(shuffle_str,True,(80, 130, 160)),FONT.render('ACW',True,(255,145,145)),
+                 FONT.render('CW',True,(145,255,145)),FONT.render('Solved!',True,(145,255,145))]
     #MAIN LOOP
     run = True
     while run:
@@ -105,15 +108,16 @@ def main():
                 pyg.quit()
                 syexit()
             elif event.type == pyg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    if event.pos[1]<btns.pos[1]:
-                        dragging=True
-                        f_selec=get_closest_piece(event.pos)
-                        f_selec_c=pieces[f_selec].colors
-                        pieces[f_selec].set_side_colors('rrrrrr')
+                if event.button == 1 and event.pos[1]>29:
+                    dragging=True
+                    f_selec=get_closest_piece(event.pos)
+                    f_selec_c=pieces[f_selec].colors
+                    pieces[f_selec].set_side_colors('rrrrrr')
                 if event.button == 3:
                     panning=True
                     prev_coords=event.pos
+                if event.button == 4: is_acw=True
+                if event.button == 5: is_acw=False
                 if event.button == 2 and current_operation == 0: current_operation=[choice(list(ops.keys())),choice([0,1])]
             elif event.type == pyg.MOUSEBUTTONUP:
                 if event.button == 1:
@@ -121,20 +125,24 @@ def main():
                         dragging=False
                         pieces[f_selec].set_side_colors(f_selec_c)
                         l_selec=get_closest_piece(event.pos)
-                        add_operations(f_selec,l_selec)
-
+                        current_operation=get_operation(f_selec,l_selec)
                 if event.button == 3:
                     panning=False
                     Ax+=drag_vector[1]
                     Ay-=drag_vector[0]
 
-        if current_operation == 0:
-            current_operation=btns.get_clicked(coords,Ax)
-
         if dragging:
             tmp_i=get_closest_piece(coords)
-            tmp_c=pieces[tmp_i].colors
-            pieces[tmp_i].set_side_colors('bbbbbb')
+            tmp_o=get_operation(f_selec,tmp_i)
+            tmp_c=[0 for i in range(26)]
+            tmp_c[tmp_i]=pieces[tmp_i].colors
+            if tmp_o != 0:
+                for i in range(26):
+                    if tmp_o[0] in grps[i]:
+                        tmp_c[i]=pieces[i].colors
+                        pieces[i].set_side_colors('bbbbbb')
+            pieces[tmp_i].set_side_colors('gggggg')
+            pieces[f_selec].set_side_colors('rrrrrr')
             
         if panning:
             drag_vector=[max(-360,min(360,(coords[0]-prev_coords[0])/2)),max(-360,min(360,(coords[1]-prev_coords[1])/2))]
@@ -144,7 +152,6 @@ def main():
             drag_vector=(0,0)
 
         if current_operation != 0:
-            btns.show=[]
             for i in range(26):
                 if current_operation[0] in grps[i]:
                     if current_operation[1]:
@@ -163,6 +170,13 @@ def main():
             sort_pieces()
             operation_progress=0
             current_operation=0
+            correct=True
+            for i in range(26):
+                res=identity3
+                for j in range(len(pieces[i].steps)):
+                    res @= pieces[i].steps[j]
+                if res.matrix != identity3.matrix:
+                    correct = False
 
         rotX=Matrix('3x3',[[1,0,0],[0,cos(radians(Ax+drag_vector[1])),-sin(radians(Ax+drag_vector[1]))],[0,sin(radians(Ax+drag_vector[1])),cos(radians(Ax+drag_vector[1]))]])
         rotY=Matrix('3x3',[[cos(radians(Ay-drag_vector[0])),0,-sin(radians(Ay-drag_vector[0]))],[0,1,0],[sin(radians(Ay-drag_vector[0])),0,cos(radians(Ay-drag_vector[0]))]])
@@ -174,16 +188,28 @@ def main():
         for piece in sorted(pieces,key=lambda x:(x.get_personal_matrix(rot)@x.center).matrix[2][0]):
             piece.draw_piece(SCREEN,(0,100,200),piece.get_personal_matrix(rot))
 
-        Basis.draw_basis(Basis,SCREEN,rot,30,450,516)
-        pyg.draw.circle(SCREEN,(220,220,220),(450,516),35,2)
+        Basis.draw_basis(Basis,SCREEN,rot,30,450,450)
+        pyg.draw.circle(SCREEN,(220,220,220),(450,450),35,2)
 
-        btns.draw(SCREEN,FONT,Ax)
+        pyg.draw.rect(SCREEN,(220,220,220),cw_outline,2)
+        if is_acw:
+            SCREEN.blit(txt_renders[1],(20,456))
+        else:
+            SCREEN.blit(txt_renders[2],(26,456))
+
+        SCREEN.blit(txt_renders[0],(15,10))
+
+        if correct: SCREEN.blit(txt_renders[3],(210,456))
 
         if dragging:
-            pieces[tmp_i].set_side_colors(tmp_c)
+            if tmp_o != 0:
+                for i in range(26):
+                    if tmp_o[0] in grps[i]:
+                        pieces[i].set_side_colors(tmp_c[i])
+            pieces[tmp_i].set_side_colors(tmp_c[tmp_i])
 
         clock.tick(60)
-        pyg.display.set_caption(f'Rendering--{int(clock.get_fps())}')
+        pyg.display.set_caption(f'Rubiks Cube--{int(clock.get_fps())}')
         pyg.display.update()
 
 if __name__=='__main__':
