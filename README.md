@@ -23,3 +23,17 @@ pip install pygame
     (white on top, green infront, and red on the side), though it changes if you make and operation on the middle layers of the cube
 
 6. ![scroll](https://github.com/omar-elsherbiny/Rubiks-Cube/assets/137009632/7b9435fa-ecc9-4f81-9d35-50c618287e07)<br>`scroll button` is just an extra feature to make a random operation on the cube
+
+# Scramble
+The default values in the `scramble.json` is :
+```json 
+"set_scramble":false,
+"scramble":""
+```
+If you wish to set a manual scramble, set it to true and the scramble you wish<br>
+example:
+```json 
+"set_scramble":true,
+"scramble":"r` f b` u"
+```
+Setting it to `true` and `""` will make the cube solved
