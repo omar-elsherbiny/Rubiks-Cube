@@ -66,36 +66,55 @@ def main():
     ]
 
     def sort_pieces():
-        pieces.sort(key=lambda x:(x.get_personal_matrix()@x.center).matrix[1][0],reverse=True)
-        pieces[:9]=sorted(pieces[:9],key=lambda x:(x.get_personal_matrix()@x.center).matrix[2][0],reverse=True)
-        pieces[9:17]=sorted(pieces[9:17],key=lambda x:(x.get_personal_matrix()@x.center).matrix[2][0],reverse=True)
-        pieces[17:]=sorted(pieces[17:],key=lambda x:(x.get_personal_matrix()@x.center).matrix[2][0],reverse=True)
+        pieces.sort(key=lambda x:(x.personal_matrix@x.center).matrix[1][0],reverse=True)
+        pieces[:9]=sorted(pieces[:9],key=lambda x:(x.personal_matrix@x.center).matrix[2][0],reverse=True)
+        pieces[9:17]=sorted(pieces[9:17],key=lambda x:(x.personal_matrix@x.center).matrix[2][0],reverse=True)
+        pieces[17:]=sorted(pieces[17:],key=lambda x:(x.personal_matrix@x.center).matrix[2][0],reverse=True)
         for i in range(4):
-            pieces[i*3:i*3+3]=sorted(pieces[i*3:i*3+3],key=lambda x:(x.get_personal_matrix()@x.center).matrix[0][0],reverse=True)
-        pieces[12:14]=sorted(pieces[12:14],key=lambda x:(x.get_personal_matrix()@x.center).matrix[0][0],reverse=True)
+            pieces[i*3:i*3+3]=sorted(pieces[i*3:i*3+3],key=lambda x:(x.personal_matrix@x.center).matrix[0][0],reverse=True)
+        pieces[12:14]=sorted(pieces[12:14],key=lambda x:(x.personal_matrix@x.center).matrix[0][0],reverse=True)
         for i in range(4):
-            pieces[i*3+14:i*3+17]=sorted(pieces[i*3+14:i*3+17],key=lambda x:(x.get_personal_matrix()@x.center).matrix[0][0],reverse=True)
+            pieces[i*3+14:i*3+17]=sorted(pieces[i*3+14:i*3+17],key=lambda x:(x.personal_matrix@x.center).matrix[0][0],reverse=True)
 
     def get_closest_piece(crds):
-        dists=[dist_3d_mp(piece.get_personal_matrix(rot)@piece.center, (crds[0]-250,-crds[1]+250,max(0,(piece.get_personal_matrix(rot)@piece.center)[2][0]))) for piece in pieces]
+        dists=[dist_3d_mp(rot@piece.get_personal_matrix()@piece.center, (crds[0]-250,-crds[1]+250,max(0,(rot@piece.get_personal_matrix()@piece.center)[2][0]))) for piece in pieces]
         return dists.index(min(dists))
 
     def get_operation(f,l):
         opl=[grps[f][i] for i in range(3) if grps[f][i]==grps[l][i]]
         if len(opl)==0: return 0
         return [opl[0],not is_acw if opl[0]=='u' or opl[0]=='d' else is_acw]
+    
+    def update_matricies():
+        for p in pieces:
+            p.personal_matrix=p.get_personal_matrix()
 
-    n_rando=randint(15,32)
-    rando=[[choice(list(ops.keys())[:6]),choice([0,1])] for i in range(n_rando)]
-    for r in rando:
-        for i in range(26):
-            if r[0] in grps[i]:
-                if r[1]:
-                    pieces[i].steps.append(pieces[i].get_step(ops[r[0]]['ax'],-90*ops[r[0]]['s']))
-                else:
-                    pieces[i].steps.append(pieces[i].get_step(ops[r[0]]['ax'],90*ops[r[0]]['s']))
-        sort_pieces()
-    shuffle_str=' '.join([o[0].upper()+'`' if o[1] else o[0].upper() for o in rando])
+    if scramble['set_scramble']:
+        scr=scramble['scramble'].lower().split(' ')
+        if scr[0]!= '':
+            for op in scr:
+                for i in range(26):
+                    if op[0] in grps[i]:
+                        if '`'in op:
+                            pieces[i].steps.append(pieces[i].get_step(ops[op[0]]['ax'],-90*ops[op[0]]['s']))
+                        else:
+                            pieces[i].steps.append(pieces[i].get_step(ops[op[0]]['ax'],90*ops[op[0]]['s']))
+                update_matricies()
+                sort_pieces()
+        shuffle_str=scramble['scramble'].upper()
+    else:
+        n_rando=randint(15,32)
+        rando=[[choice(list(ops.keys())[:6]),choice([0,1])] for i in range(n_rando)]
+        for r in rando:
+            for i in range(26):
+                if r[0] in grps[i]:
+                    if r[1]:
+                        pieces[i].steps.append(pieces[i].get_step(ops[r[0]]['ax'],-90*ops[r[0]]['s']))
+                    else:
+                        pieces[i].steps.append(pieces[i].get_step(ops[r[0]]['ax'],90*ops[r[0]]['s']))
+            update_matricies()
+            sort_pieces()
+        shuffle_str=' '.join([o[0].upper()+'`' if o[1] else o[0].upper() for o in rando])
 
     txt_renders=[FONT2.render(shuffle_str,True,(80, 130, 160)),FONT.render('ACW',True,(255,145,145)),
                  FONT.render('CW',True,(145,255,145)),FONT.render('Solved!',True,(145,255,145))]
@@ -108,7 +127,7 @@ def main():
                 pyg.quit()
                 syexit()
             elif event.type == pyg.MOUSEBUTTONDOWN:
-                if event.button == 1 and event.pos[1]>29:
+                if event.button == 1 and event.pos[1]>29 and current_operation == 0:
                     dragging=True
                     f_selec=get_closest_piece(event.pos)
                     f_selec_c=pieces[f_selec].colors
@@ -158,7 +177,8 @@ def main():
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],-90*ops[current_operation[0]]['s']*operation_progress/100)
                     else:
                         pieces[i].add=pieces[i].get_step(ops[current_operation[0]]['ax'],90*ops[current_operation[0]]['s']*operation_progress/100)
-            operation_progress+=4
+            update_matricies()
+            operation_progress+=5
         if operation_progress >= 100:
             for i in range(26):
                 if current_operation[0] in grps[i]:
@@ -167,9 +187,11 @@ def main():
                         pieces[i].steps.append(pieces[i].get_step(ops[current_operation[0]]['ax'],-90*ops[current_operation[0]]['s']))
                     else:
                         pieces[i].steps.append(pieces[i].get_step(ops[current_operation[0]]['ax'],90*ops[current_operation[0]]['s']))
+            update_matricies()
             sort_pieces()
             operation_progress=0
             current_operation=0
+            #check
             correct=True
             for i in range(26):
                 res=identity3
@@ -185,8 +207,8 @@ def main():
 
         SCREEN.fill(BG_COLOR)
 
-        for piece in sorted(pieces,key=lambda x:(x.get_personal_matrix(rot)@x.center).matrix[2][0]):
-            piece.draw_piece(SCREEN,(0,100,200),piece.get_personal_matrix(rot))
+        for piece in sorted(pieces,key=lambda x:(rot@x.personal_matrix@x.center).matrix[2][0]):
+            piece.draw_piece(SCREEN,(0,100,200),rot@piece.personal_matrix)
 
         Basis.draw_basis(Basis,SCREEN,rot,30,450,450)
         pyg.draw.circle(SCREEN,(220,220,220),(450,450),35,2)

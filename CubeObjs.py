@@ -18,6 +18,11 @@ f=open(resource_path('config.json'),'r')
 config=json.load(f)
 f.close()
 
+
+f=open('scramble.json','r')
+scramble=json.load(f)
+f.close()
+
 cube_scale=config['cube_scale']
 piece_scale=config['piece_scale']
 side_colors = config['side_colors']
@@ -50,6 +55,7 @@ class Piece:
                 's':Matrix('3x1',[[center.matrix[0][0]+piece_scale*(s[0])],[center.matrix[1][0]+piece_scale*(s[1])],[center.matrix[2][0]+piece_scale*(s[2])]]),
                 'c':side_colors[i]
             })
+        self.personal_matrix=self.get_personal_matrix()
 
     def set_side_colors(self,new_colors):
         self.colors=new_colors
@@ -65,10 +71,8 @@ class Piece:
             return Matrix('3x3',[[cos(radians(angle)),-sin(radians(angle)),0],[sin(radians(angle)),cos(radians(angle)),0],[0,0,1]])
 
 
-    def get_personal_matrix(self,base=None):
+    def get_personal_matrix(self):
         res=self.add
-        if base != None:
-            res = base@self.add
         for i in range(len(self.steps)):
             res @= self.steps[len(self.steps)-i-1]
         return res
